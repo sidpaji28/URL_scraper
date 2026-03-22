@@ -61,7 +61,7 @@ console.log(urls.length + ' URLs captured');
 
 ### Output in console
 
-![Router intercept capturing URLs in the browser console](console_capture.png)
+![Router intercept capturing URLs in the browser console](console_output.png)
 
 ### Why this works
 
