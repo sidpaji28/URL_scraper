@@ -52,12 +52,15 @@ console.log('Ready — interact with the page now.');
 ```
 
 4. Click, scroll, or interact with the UI normally
-5. Export captured URLs:
+5. When done, clean and export:
 
 ```javascript
-copy(JSON.stringify(urls, null, 2));
-console.log(urls.length + ' URLs captured');
+var cleaned = urls.filter(u => typeof u === 'object' && u.url);
+copy(JSON.stringify(cleaned, null, 2));
+console.log(cleaned.length + ' clean entries');
 ```
+
+> **Why clean?** The router fires twice per click — once as a proper object `{"url": "...", "name": "..."}` and once as a bare relative string `"/sets/category/3/..."`. The filter keeps only the dict objects and discards the duplicates.
 
 ### Troubleshooting — Duplicate captures / counter keeps growing
 
