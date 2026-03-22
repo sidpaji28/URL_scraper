@@ -40,23 +40,57 @@ Next.js App Router uses `window.next.router.push()` for all client-side navigati
 ```javascript
 var urls = [];
 var orig = window.next.router.push;
-window.next.router.push = function(url) {
-    if (url && url.toString().includes('groupId')) {
+window.next.router.push = function() {
+    var url = arguments[0];
+    if (url) {
         urls.push(url.toString());
-        console.log('captured:', url);
+        console.log('[' + urls.length + ']', url);
     }
     return orig.apply(this, arguments);
 };
-console.log('Interceptor ready — click tiles now!');
+console.log('Ready — interact with the page now.');
 ```
 
 4. Click, scroll, or interact with the UI normally
 5. Export captured URLs:
 
 ```javascript
-copy(JSON.stringify(urls));
-console.log(urls.length + ' captured');
+copy(JSON.stringify(urls, null, 2));
+console.log(urls.length + ' URLs captured');
 ```
+
+### Troubleshooting — Duplicate captures / counter keeps growing
+
+If you notice the counter climbing into the thousands (e.g. `[16706]`), or the same URL being logged repeatedly, it means the interceptor has been pasted more than once in the same session — each paste wraps the router again, causing every push to fire multiple times.
+
+To fix it, reset the router back to its original state and start fresh:
+
+```javascript
+// Step 1: Reset to original
+window.next.router.push = window.next.router.push.__orig || window.next.router.push;
+
+// Step 2: Fresh interceptor with dedup
+var urls = [];
+var seen = new Set();
+var orig = window.next.router.push;
+orig.__orig = orig;
+window.next.router.push = function() {
+    var url = arguments[0];
+    if (url) {
+        var key = url.toString();
+        if (!seen.has(key)) {
+            seen.add(key);
+            urls.push(key);
+            console.log('[' + urls.length + ']', key);
+        }
+    }
+    return orig.apply(this, arguments);
+};
+window.next.router.push.__orig = orig;
+console.log('Clean interceptor ready — click tiles now!');
+```
+
+Counter will restart from `[1]` and each URL will only appear once regardless of how many times the router fires for the same tile.
 
 ### Output in console
 
@@ -157,8 +191,8 @@ Both methods produce the same structure:
 ```json
 [
   {
-    "url": "https://example.com/sets/category/3/some-set?groupId=12345&cardType=cards",
-    "name": "Some Set"
+    "url": "https://example.com/category/some-item?id=12345",
+    "name": "Some Item"
   }
 ]
 ```
