@@ -59,6 +59,10 @@ copy(JSON.stringify(urls, null, 2));
 console.log(urls.length + ' URLs captured');
 ```
 
+### Output in console
+
+![Router intercept capturing URLs in the browser console](console_capture.png)
+
 ### Why this works
 
 The Next.js router is exposed on `window.next.router` and is a plain JavaScript object. Its `push` method is replaceable at runtime. Every navigation the app performs — regardless of how deeply it is triggered inside React components — passes through this single function.
