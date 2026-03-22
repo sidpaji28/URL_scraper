@@ -40,23 +40,22 @@ Next.js App Router uses `window.next.router.push()` for all client-side navigati
 ```javascript
 var urls = [];
 var orig = window.next.router.push;
-window.next.router.push = function() {
-    var url = arguments[0];
-    if (url) {
+window.next.router.push = function(url) {
+    if (url && url.toString().includes('groupId')) {
         urls.push(url.toString());
-        console.log('[' + urls.length + ']', url);
+        console.log('captured:', url);
     }
     return orig.apply(this, arguments);
 };
-console.log('Ready — interact with the page now.');
+console.log('Interceptor ready — click tiles now!');
 ```
 
 4. Click, scroll, or interact with the UI normally
 5. Export captured URLs:
 
 ```javascript
-copy(JSON.stringify(urls, null, 2));
-console.log(urls.length + ' URLs captured');
+copy(JSON.stringify(urls));
+console.log(urls.length + ' captured');
 ```
 
 ### Output in console
